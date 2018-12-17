@@ -7,15 +7,15 @@
 using namespace Rcpp;
 
 // tensor_from_r_
-Rcpp::XPtr<torch::Tensor> tensor_from_r_(SEXP x, std::vector<int64_t> dim, bool clone);
-RcppExport SEXP _torch_tensor_from_r_(SEXP xSEXP, SEXP dimSEXP, SEXP cloneSEXP) {
+Rcpp::XPtr<torch::Tensor> tensor_from_r_(SEXP x, std::vector<int64_t> dim, std::vector<int64_t> reverse);
+RcppExport SEXP _torch_tensor_from_r_(SEXP xSEXP, SEXP dimSEXP, SEXP reverseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
     Rcpp::traits::input_parameter< std::vector<int64_t> >::type dim(dimSEXP);
-    Rcpp::traits::input_parameter< bool >::type clone(cloneSEXP);
-    rcpp_result_gen = Rcpp::wrap(tensor_from_r_(x, dim, clone));
+    Rcpp::traits::input_parameter< std::vector<int64_t> >::type reverse(reverseSEXP);
+    rcpp_result_gen = Rcpp::wrap(tensor_from_r_(x, dim, reverse));
     return rcpp_result_gen;
 END_RCPP
 }

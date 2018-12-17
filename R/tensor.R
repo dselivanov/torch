@@ -13,7 +13,7 @@ NULL
 #' tensor_from_r(array(runif(8), dim = c(2, 2, 2)))
 #' tensor_from_r(matrix(c(TRUE, FALSE), nrow = 3, ncol = 4))
 #' @export
-tensor_from_r <- function(x) {
+tensor_from_r <- function(x, copy = TRUE) {
 
   dimension <- dim(x)
 
@@ -21,11 +21,8 @@ tensor_from_r <- function(x) {
     dimension <- length(x)
   }
 
-  if (!is.null(dim(x))) {
-    x <- aperm(x, perm = seq(length(dim(x)), 1))
-  }
-
-  `torch::Tensor`$dispatch(tensor_from_r_(x, dimension))
+  rev <- seq(length(dimension)-1L, 0L)
+  `torch::Tensor`$dispatch(tensor_from_r_(x, rev(dimension), rev, copy))
 }
 
 #' Creates a torch tensor.

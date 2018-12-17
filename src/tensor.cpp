@@ -6,7 +6,8 @@ Rcpp::XPtr<torch::Tensor> make_tensor_ptr (torch::Tensor x) {
 }
 
 template <int RTYPE, at::ScalarType ATTYPE>
-Rcpp::XPtr<torch::Tensor> tensor_from_r_impl_ (SEXP x, std::vector<int64_t> dim, bool clone = true) {
+Rcpp::XPtr<torch::Tensor> tensor_from_r_impl_ (SEXP x, std::vector<int64_t> dim,
+                                               std::vector<int64_t> reverse) {
 
   auto attype = ATTYPE;
 
@@ -17,10 +18,7 @@ Rcpp::XPtr<torch::Tensor> tensor_from_r_impl_ (SEXP x, std::vector<int64_t> dim,
 
   Rcpp::Vector<RTYPE> vec(x);
 
-  auto tensor = torch::from_blob(vec.begin(), dim, attype);
-
-  if (clone)
-    tensor = tensor.clone();
+  auto tensor = torch::from_blob(vec.begin(), dim, attype).permute(reverse);
 
   if (RTYPE == LGLSXP)
     tensor = tensor.to(torch::kByte);
@@ -30,15 +28,16 @@ Rcpp::XPtr<torch::Tensor> tensor_from_r_impl_ (SEXP x, std::vector<int64_t> dim,
 
 
 // [[Rcpp::export]]
-Rcpp::XPtr<torch::Tensor> tensor_from_r_ (SEXP x, std::vector<int64_t> dim, bool clone = true) {
+Rcpp::XPtr<torch::Tensor> tensor_from_r_ (SEXP x, std::vector<int64_t> dim,
+                                          std::vector<int64_t> reverse) {
 
   switch (TYPEOF(x)) {
   case INTSXP:
-    return tensor_from_r_impl_<INTSXP, torch::kInt>(x, dim, clone);
+    return tensor_from_r_impl_<INTSXP, torch::kInt>(x, dim, reverse);
   case REALSXP:
-    return tensor_from_r_impl_<REALSXP, torch::kDouble>(x, dim, clone);
+    return tensor_from_r_impl_<REALSXP, torch::kDouble>(x, dim, reverse);
   case LGLSXP:
-    return tensor_from_r_impl_<LGLSXP, torch::kByte>(x, dim, clone);
+    return tensor_from_r_impl_<LGLSXP, torch::kByte>(x, dim, reverse);
   default:
     Rcpp::stop("not handled");
   }
